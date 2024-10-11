@@ -16,9 +16,9 @@ async function groupTabs() {
     groups[domain].push(tab);
   });
 
-  // Create tab groups based on icon similarity
+  // Create tab groups based on domain
   for (const [domain, tabObjects] of Object.entries(groups)) {
-    const groupName = createGroupNameByIcon(tabObjects);
+    const groupName = findCommonSubstringAmongTitles(tabObjects.map(tab => tab.title));
     if (tabObjects.length > 1) { // Only group if there's more than one tab
       const color = getColorFromString(groupName);
       const tabIds = tabObjects.map(tab => tab.id);
@@ -38,29 +38,6 @@ function getMainDomain(url) {
     console.error('Error extracting main domain:', error);
     return url; // Fallback to the full URL if domain extraction fails
   }
-}
-
-// Creates a group name by finding a common string between tab titles with the same icon
-function createGroupNameByIcon(tabObjects) {
-  const iconMap = {};
-
-  // Organize tabs by their favicon URL
-  tabObjects.forEach(tab => {
-    const iconUrl = tab.favIconUrl || 'defaultIcon';
-    if (!iconMap[iconUrl]) {
-      iconMap[iconUrl] = [];
-    }
-    iconMap[iconUrl].push(tab.title);
-  });
-
-  // Find the group name from the most common substring between tab titles of the same icon
-  for (const [iconUrl, titles] of Object.entries(iconMap)) {
-    if (titles.length > 1) { // Only check for common substring if there's more than one tab with the same icon
-      return findCommonSubstringAmongTitles(titles);
-    }
-  }
-
-  return 'Miscellaneous'; // Fallback name if no common substring is found
 }
 
 // Finds the most common substring among a list of titles
