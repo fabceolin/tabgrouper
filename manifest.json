@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Tab Grouper",
   "version": "1.1",
-  "description": "Easy to audit opensource Tab Grouper at https://github.com/fabceolin/tabgrouper. Organizes tabs by their main domain and creates unique group names using the largest domain word and common words from tab titles, with consistent colors for each group.",
+  "description": "Organizes tabs by domain, creates unique group names. MIT License opensource code at: github.com/fabceolin/tabgrouper",
   "permissions": ["tabs", "tabGroups"],
   "action": {
     "default_popup": "popup.html"
