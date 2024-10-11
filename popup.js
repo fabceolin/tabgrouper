@@ -16,9 +16,9 @@ async function groupTabs() {
     groups[domain].push(tab);
   });
 
-  // Create tab groups based on domain
+  // Create tab groups based on the updated naming strategy
   for (const [domain, tabObjects] of Object.entries(groups)) {
-    const groupName = findCommonSubstringAmongTitles(tabObjects.map(tab => tab.title));
+    const groupName = generateUniqueGroupName(domain, tabObjects.map(tab => tab.title));
     if (tabObjects.length > 1) { // Only group if there's more than one tab
       const color = getColorFromString(groupName);
       const tabIds = tabObjects.map(tab => tab.id);
@@ -40,21 +40,43 @@ function getMainDomain(url) {
   }
 }
 
-// Finds the most common substring among a list of titles
-function findCommonSubstringAmongTitles(titles) {
-  const commonWords = {};
+// Generates a group name using the largest word in the main domain and unique common words from titles
+function generateUniqueGroupName(domain, titles) {
+  const largestWord = findLargestWord(domain);
+  const commonWords = findCommonWordsInAllTitles(titles);
+  const uniqueNameParts = removeDuplicateStrings([largestWord, ...commonWords]);
+  return uniqueNameParts.join(' ').trim();
+}
 
-  titles.forEach(title => {
-    const words = title.split(' ');
-    words.forEach(word => {
-      if (word.length > 2) { // Ignore very short words
-        commonWords[word] = (commonWords[word] || 0) + 1;
-      }
-    });
+// Finds the largest word in a domain
+function findLargestWord(domain) {
+  const words = domain.split(/[\W_]+/); // Split on non-word characters
+  return words.reduce((largest, word) => (word.length > largest.length ? word : largest), '');
+}
+
+// Finds words common to all tab titles
+function findCommonWordsInAllTitles(titles) {
+  if (titles.length === 0) return [];
+
+  const wordSets = titles.map(title => new Set(title.toLowerCase().split(' ')));
+  const commonWords = [...wordSets[0]].filter(word =>
+    wordSets.every(set => set.has(word) && word.length > 2) // Ignore short words
+  );
+
+  return commonWords.slice(0, 3); // Limit to a few common words for readability
+}
+
+// Removes duplicate strings from the list, keeping only unique words
+function removeDuplicateStrings(words) {
+  const seen = new Set();
+  return words.filter(word => {
+    const lowercaseWord = word.toLowerCase();
+    if (seen.has(lowercaseWord)) {
+      return false; // Skip duplicate word
+    }
+    seen.add(lowercaseWord);
+    return true; // Include unique word
   });
-
-  const sortedWords = Object.keys(commonWords).sort((a, b) => commonWords[b] - commonWords[a]);
-  return sortedWords.slice(0, 3).join(' ') || 'Untitled';
 }
 
 // Generates a consistent color for the group based on its name

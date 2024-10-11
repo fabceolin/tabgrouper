@@ -1,0 +1,44 @@
+name: Create Chrome Extension Release
+
+permissions:
+  contents: write
+
+on:
+  push:
+    tags:
+      - '*'  # Trigger on any tag
+
+jobs:
+  build:
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Create Extension Package
+        run: |
+          mkdir -p dist
+          zip -j dist/chrome-extension.zip popup.html popup.js manifest.json LICENSE  # Package only the necessary files
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.ref }}
+          name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Release Asset (Chrome Extension)
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./dist/chrome-extension.zip
+          asset_name: chrome-extension-${{ github.ref_name }}.zip
+          asset_content_type: application/zip
+
