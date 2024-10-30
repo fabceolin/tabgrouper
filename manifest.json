@@ -4,6 +4,9 @@
   "version": "1.2",
   "description": "Organizes tabs by domain, creates unique group names. MIT License opensource code at: github.com/fabceolin/tabgrouper",
   "permissions": ["tabs", "tabGroups"],
+  "background": {
+    "service_worker": "background.js"
+  },
   "action": {
     "default_popup": "popup.html"
   },
