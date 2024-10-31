@@ -2,9 +2,37 @@
 <html>
 <head>
   <title>Smart Tab Grouper</title>
+  <style>
+    body {
+      width: 200px;
+      padding: 10px;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    button {
+      width: 100%;
+      padding: 8px;
+      cursor: pointer;
+    }
+    .checkbox-container {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+  </style>
   <script src="popup.js"></script>
 </head>
 <body>
-  <button id="groupButton">Group Similar Tabs</button>
+  <div class="container">
+    <button id="groupButton">Group Similar Tabs</button>
+    <button id="ungroupButton">Ungroup All Tabs</button>
+    <div class="checkbox-container">
+      <input type="checkbox" id="autoGrouping">
+      <label for="autoGrouping">Enable Auto Grouping</label>
+    </div>
+  </div>
 </body>
 </html>

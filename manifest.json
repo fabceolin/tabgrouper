@@ -3,7 +3,7 @@
   "name": "Tab Grouper",
   "version": "1.3",
   "description": "Continuous organizes tabs by domain, creates unique group names. MIT License opensource code at: github.com/fabceolin/tabgrouper",
-  "permissions": ["tabs", "tabGroups"],
+  "permissions": ["tabs", "tabGroups", "storage"],
   "background": {
     "service_worker": "background.js"
   },

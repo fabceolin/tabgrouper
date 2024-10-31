@@ -1,4 +1,10 @@
-// Maintain the original grouping logic in background.js
+let isAutoGroupingEnabled = false;
+
+// Load initial state
+chrome.storage.local.get(['autoGrouping'], function(result) {
+  isAutoGroupingEnabled = result.autoGrouping ?? false;
+});
+
 async function handleNewTab(tab) {
   const tabs = await chrome.tabs.query({ currentWindow: true });
   const groups = {};
@@ -80,18 +86,23 @@ function getColorFromString(str) {
   return colors[Math.abs(hash) % colors.length];
 }
 
-// Add event listeners for continuous grouping
+// Update event listeners to respect auto-grouping setting
 chrome.tabs.onCreated.addListener((tab) => {
-  if (tab.url) handleNewTab(tab);
+  if (isAutoGroupingEnabled && tab.url) handleNewTab(tab);
 });
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  if (changeInfo.url) handleNewTab(tab);
+  if (isAutoGroupingEnabled && changeInfo.url) handleNewTab(tab);
 });
 
 // Handle messages from popup.js
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.type === 'handleNewTab') {
-    handleNewTab(message.tab);
+  switch (message.type) {
+    case 'handleNewTab':
+      handleNewTab(message.tab);
+      break;
+    case 'setAutoGrouping':
+      isAutoGroupingEnabled = message.enabled;
+      break;
   }
 });
