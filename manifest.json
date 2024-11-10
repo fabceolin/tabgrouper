@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Tab Grouper",
-  "version": "1.5",
+  "version": "1.6",
   "description": "Organizes tabs by domain, creates unique group names. MIT License opensource code at: github.com/fabceolin/tabgrouper",
   "icons": {
     "16": "icons/icon16.png",
