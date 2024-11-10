@@ -19,7 +19,8 @@ jobs:
       - name: Create Extension Package
         run: |
           mkdir -p dist
-          zip -j dist/chrome-extension.zip icons/* *.js *.html manifest.json LICENSE
+          zip -r dist/chrome-extension.zip icons *.js *.html manifest.json LICENSE
+
 
       - name: Create GitHub Release
         id: create_release
