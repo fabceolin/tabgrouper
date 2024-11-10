@@ -1,11 +1,5 @@
-let isAutoGroupingEnabled = false;
-
-// Load initial state
-chrome.storage.local.get(['autoGrouping'], function(result) {
-  isAutoGroupingEnabled = result.autoGrouping ?? false;
-});
-
-async function handleNewTab(tab) {
+// File: background.js
+async function groupTabs() {
   const tabs = await chrome.tabs.query({ currentWindow: true });
   const groups = {};
 
@@ -30,7 +24,7 @@ async function handleNewTab(tab) {
   }
 }
 
-// Move all utility functions from popup.js to background.js
+// Extracts the main domain from a URL
 function getMainDomain(url) {
   try {
     const { hostname } = new URL(url);
@@ -42,6 +36,7 @@ function getMainDomain(url) {
   }
 }
 
+// Generates a group name using the largest word in the main domain and unique common words from titles
 function generateUniqueGroupName(domain, titles) {
   const largestWord = findLargestWord(domain);
   const commonWords = findCommonWordsInAllTitles(titles);
@@ -86,23 +81,8 @@ function getColorFromString(str) {
   return colors[Math.abs(hash) % colors.length];
 }
 
-// Update event listeners to respect auto-grouping setting
-chrome.tabs.onCreated.addListener((tab) => {
-  if (isAutoGroupingEnabled && tab.url) handleNewTab(tab);
+// Listen for extension icon clicks
+chrome.action.onClicked.addListener(() => {
+  groupTabs();
 });
 
-chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  if (isAutoGroupingEnabled && changeInfo.url) handleNewTab(tab);
-});
-
-// Handle messages from popup.js
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  switch (message.type) {
-    case 'handleNewTab':
-      handleNewTab(message.tab);
-      break;
-    case 'setAutoGrouping':
-      isAutoGroupingEnabled = message.enabled;
-      break;
-  }
-});
