@@ -29,6 +29,10 @@ function getMainDomain(url) {
   try {
     const { hostname } = new URL(url);
     const domainParts = hostname.split('.');
+    // If first part is www, take the next part
+    if (domainParts[0] === 'www') {
+      return domainParts[1];
+    }
     // If domain has more than 2 parts, take the one before the TLD
     if (domainParts.length > 2) {
       return domainParts[domainParts.length - 3];
