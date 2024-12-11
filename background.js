@@ -28,8 +28,13 @@ async function groupTabs() {
 function getMainDomain(url) {
   try {
     const { hostname } = new URL(url);
-    const domainParts = hostname.split('.').slice(-2);
-    return domainParts.join('.');
+    const domainParts = hostname.split('.');
+    // If domain has more than 2 parts, take the one before the TLD
+    if (domainParts.length > 2) {
+      return domainParts[domainParts.length - 3];
+    }
+    // Fallback to joining last two parts if it's a simple domain
+    return domainParts.slice(-2).join('.');
   } catch (error) {
     console.error('Error extracting main domain:', error);
     return url;
