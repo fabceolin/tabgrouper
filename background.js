@@ -1,10 +1,16 @@
 // File: background.js
 async function groupTabs() {
+  // First ungroup all tabs
   const tabs = await chrome.tabs.query({ currentWindow: true });
-  const groups = {};
+  for (const tab of tabs) {
+    const group = await chrome.tabs.ungroup(tab.id).catch(() => null);
+  }
 
-  // Group tabs by main domain URL
-  tabs.forEach(tab => {
+  // Now regroup them
+  const newTabs = await chrome.tabs.query({ currentWindow: true });
+  const groups = {};
+  
+  newTabs.forEach(tab => {
     const domain = getMainDomain(tab.url);
     if (!groups[domain]) {
       groups[domain] = [];
@@ -12,10 +18,9 @@ async function groupTabs() {
     groups[domain].push(tab);
   });
 
-  // Create tab groups based on the updated naming strategy
   for (const [domain, tabObjects] of Object.entries(groups)) {
     const groupName = generateUniqueGroupName(domain, tabObjects.map(tab => tab.title));
-    if (tabObjects.length > 1) { // Only group if there's more than one tab
+    if (tabObjects.length > 1) {
       const color = getColorFromString(groupName);
       const tabIds = tabObjects.map(tab => tab.id);
       const group = await chrome.tabs.group({ tabIds });
