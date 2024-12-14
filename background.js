@@ -1,23 +1,35 @@
-// File: background.js
-async function groupTabs() {
-  // First ungroup all tabs
+
+let isGrouped = false;
+
+async function ungroupTabs() {
   const tabs = await chrome.tabs.query({ currentWindow: true });
   for (const tab of tabs) {
-    const group = await chrome.tabs.ungroup(tab.id).catch(() => null);
+    await chrome.tabs.ungroup(tab.id);
   }
+  isGrouped = false;
+}
 
-  // Now regroup them
-  const newTabs = await chrome.tabs.query({ currentWindow: true });
+async function toggleTabGroups() {
+  if (isGrouped) {
+    await ungroupTabs();
+  } else {
+    await groupTabs();
+    isGrouped = true;
+  }
+}
+
+async function groupTabs() {
+  const tabs = await chrome.tabs.query({ currentWindow: true });
   const groups = {};
   
-  newTabs.forEach(tab => {
+  tabs.forEach(tab => {
     const domain = getMainDomain(tab.url);
     if (!groups[domain]) {
       groups[domain] = [];
     }
     groups[domain].push(tab);
   });
-
+  
   for (const [domain, tabObjects] of Object.entries(groups)) {
     const groupName = generateUniqueGroupName(domain, tabObjects.map(tab => tab.title));
     if (tabObjects.length > 1) {
@@ -95,8 +107,7 @@ function getColorFromString(str) {
   return colors[Math.abs(hash) % colors.length];
 }
 
-// Listen for extension icon clicks
 chrome.action.onClicked.addListener(() => {
-  groupTabs();
+  toggleTabGroups();
 });
 
